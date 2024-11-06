@@ -17,8 +17,9 @@ def load_model_tflite(model_path, num_threads=10):
 
     # ------ (1) instantiate interpreter ---------------------------------------
     # interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
+    model_file, *device = model_path.split('@')
     tflite.Interpreter(
-        model_path=model_file,
+        model_path=model_path,
         experimental_delegates=[
             tflite.load_delegate(EDGETPU_SHARED_LIB,
                                 {'device': device[0]} if device else {})

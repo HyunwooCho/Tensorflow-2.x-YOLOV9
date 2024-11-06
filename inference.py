@@ -15,10 +15,10 @@ def get_args():
     """Get command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--config", type=str, default="config/model/Yolov9e/yolov9_416.yaml"
+        "--config", type=str, default="config/model/Yolov9t/yolov9_320.yaml"
     )
     parser.add_argument("--model", type=str, default="yolov9")
-    parser.add_argument("--video", type=str, default="data_test/testcase8.mp4")
+    parser.add_argument("--video", type=str, default="0")
     args = parser.parse_args()
 
     return args
