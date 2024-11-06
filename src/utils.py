@@ -1,14 +1,32 @@
 import time
-
+import platform
 import cv2
 import numpy as np
 import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 
+
+EDGETPU_SHARED_LIB = {
+  'Linux': 'libedgetpu.so.1',
+  'Darwin': 'libedgetpu.1.dylib',
+  'Windows': 'edgetpu.dll'
+}[platform.system()]
 
 def load_model_tflite(model_path, num_threads=10):
     """Load TFLite model."""
-    interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
+
+    # ------ (1) instantiate interpreter ---------------------------------------
+    # interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=num_threads)
+    tflite.Interpreter(
+        model_path=model_file,
+        experimental_delegates=[
+            tflite.load_delegate(EDGETPU_SHARED_LIB,
+                                {'device': device[0]} if device else {})
+        ]
+    )
+    # ------ (2) allocate tensors ----------------------------------------------
     interpreter.allocate_tensors()
+    # ------ (3) get in/out details --------------------------------------------
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     return interpreter, input_details, output_details

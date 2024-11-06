@@ -9,6 +9,7 @@ import numpy as np
 from config.config import load_config
 from src.utils import *
 
+import tflite_runtime.interpreter as tflite
 
 def get_args():
     """Get command-line arguments."""
@@ -43,16 +44,20 @@ def run_yolov8(
     frame, input_shape, prediction_shape, interpreter, input_details, output_details
 ):
     """YOLO v8"""
+    # ------ (4) set input tensor ----------------------------------------------
     bgr, _, _ = letterbox(frame, input_shape)
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
     tensor = blob(rgb)
     tensor = np.transpose(tensor, (0, 2, 3, 1))
     tensor = np.ascontiguousarray(tensor)
-    interpreter.set_tensor(input_details[0]["index"], tensor)
+    # interpreter.set_tensor(input_details[0]["index"], tensor)
+    tensor = interpreter.tensor(input_details[0]["index"])
+    # ------ (5) invoke interpreter --------------------------------------------
     interpreter.invoke()
-    predictions = interpreter.get_tensor(output_details[0]["index"])
+    # ------ (6) get output tensor ---------------------------------------------
+    # predictions = interpreter.get_tensor(output_details[0]["index"])
+    predictions = interpreter.tensor(output_details[0]["index"])
     predictions = np.array(predictions).reshape((84, prediction_shape))
-
     predictions = predictions.T
     return predictions
 
