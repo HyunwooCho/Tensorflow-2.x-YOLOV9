@@ -32,14 +32,17 @@ def run_yolov9(
     bgr, ratio, dwdh = letterbox(frame, (input_shape, input_shape))
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
     tensor = blob(rgb)
+    tensor = np.transpose(tensor, (0, 2, 3, 1)) # NCHW -> NHWC
     tensor = np.ascontiguousarray(tensor)
     # interpreter.set_tensor(input_details[0]["index"], tensor)
-    tensor = interpreter.tensor(input_details[0]["index"])
+    input_tensor_index = input_details[0]["index"]
+    interpreter.tensor(input_tensor_index)()[0] = tensor
     # ------ (5) invoke interpreter --------------------------------------------
     interpreter.invoke()
     # ------ (6) get output tensor ---------------------------------------------
     # predictions = interpreter.get_tensor(output_details[0]["index"])
-    predictions = interpreter.tensor(output_details[0]["index"])
+    output_tensor_index = output_details[0]['index']
+    predictions = interpreter.tensor(output_tensor_index)()
     predictions = np.array(predictions).reshape((84, prediction_shape))
     predictions = predictions.T
     return predictions
@@ -56,12 +59,12 @@ def run_yolov8(
     tensor = np.transpose(tensor, (0, 2, 3, 1))
     tensor = np.ascontiguousarray(tensor)
     # interpreter.set_tensor(input_details[0]["index"], tensor)
-    tensor = interpreter.tensor(input_details[0]["index"])
+    interpreter.tensor(input_details[0]["index"])()[0] = tensor
     # ------ (5) invoke interpreter --------------------------------------------
     interpreter.invoke()
     # ------ (6) get output tensor ---------------------------------------------
     # predictions = interpreter.get_tensor(output_details[0]["index"])
-    predictions = interpreter.tensor(output_details[0]["index"])
+    predictions = interpreter.tensor(output_details[0]["index"])()
     predictions = np.array(predictions).reshape((84, prediction_shape))
     predictions = predictions.T
     return predictions
