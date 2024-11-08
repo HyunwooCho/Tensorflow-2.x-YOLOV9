@@ -28,13 +28,18 @@ def run_yolov9(
     frame, input_shape, prediction_shape, interpreter, input_details, output_details
 ):
     """YOLO v9"""
+    # ------ (4) set input tensor ----------------------------------------------
     bgr, ratio, dwdh = letterbox(frame, (input_shape, input_shape))
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
     tensor = blob(rgb)
     tensor = np.ascontiguousarray(tensor)
-    interpreter.set_tensor(input_details[0]["index"], tensor)
+    # interpreter.set_tensor(input_details[0]["index"], tensor)
+    tensor = interpreter.tensor(input_details[0]["index"])
+    # ------ (5) invoke interpreter --------------------------------------------
     interpreter.invoke()
-    predictions = interpreter.get_tensor(output_details[0]["index"])
+    # ------ (6) get output tensor ---------------------------------------------
+    # predictions = interpreter.get_tensor(output_details[0]["index"])
+    predictions = interpreter.tensor(output_details[0]["index"])
     predictions = np.array(predictions).reshape((84, prediction_shape))
     predictions = predictions.T
     return predictions
